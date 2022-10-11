@@ -10,39 +10,47 @@ const DB ={
 
 const getDelay = ()=> Math.floor(Math.random() * 1000)
 
-const getAllUsers = (cb) =>{
-    setTimeout(() => {
-        cb(DB.users);
-
-    }, getDelay())
+const getAllUsers = () =>{
+    return new Promise(resolve =>{
+        setTimeout(() => {
+            resolve(DB.users);
+    
+        }, getDelay());
+    })
+    
 }
 
 const setNewUser = (newUser, cb) => {
-    setTimeout(() => {
-        const user ={
-            id: new Date().getTime(), 
-            ...newUser
-        };
-        DB.users.push(user);
-        cb(user);
-    }, getDelay())
+    return new Promise(resolve => {
+        setTimeout(() => {
+            const user ={
+                id: new Date().getTime(), 
+                ...newUser
+            };
+            DB.users.push(user);
+            resolve(user);
+        }, getDelay())
+    })  
 }
 
-const updateUser = (id, fields, cb) => {
-    setTimeout(() =>{
-        let update;
-        DB.users = DB.users.map(user => {
-            if(user.id === id){
-                update = {
-                    ...user,
-                    ...fields
+const updateUser = (id, fields) => {
+    return new Promise(resolve =>{
+        setTimeout(() =>{
+            let update;
+            DB.users = DB.users.map(user => {
+                if(user.id === id){
+                    update = {
+                        ...user,
+                        ...fields
+                    }
+                    return update;
                 }
-                return update;
-            }
-            return user;
-        });
-        cb(update);
-    }, getDelay())
+                return user;
+            });
+            resolve(update);
+        }, getDelay())
+    })
+    
 } 
 // console.log(DB.users);
 
@@ -59,14 +67,18 @@ const newUser = {
     name:'Alex',
     age: 31
 }
-setNewUser(newUser, function(newData) {
-    console.log('Новый пользователь добавлен', newData);
-    updateUser(newData.id,{name: 'Alexander'}, function(updData) {
-        console.log('Пользователь изменен', updData);
-        getAllUsers(function (allData){
-            allData.forEach(function(user, i) {
-                console.log(`Пользователь ${++i}`, user);
-            })
-        })
+setNewUser(newUser)
+    .then(newData => {
+        console.log('Новый пользователь добавлен', newData);
+        return updateUser(newData.id,{name: 'Alexander'});
     })
-})
+    .then(updData => {
+        console.log('Пользователь изменен', updData);
+        return getAllUsers();
+    })
+        
+    .then(allData => {
+        allData.forEach(function(user, i) {
+            console.log(`Пользователь ${++i}`, user);
+        });
+    })
