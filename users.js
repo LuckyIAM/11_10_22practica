@@ -41,6 +41,7 @@ const updateUser = (id, fields, cb) => {
             }
             return user;
         })
+        cb(update);
     }, getDelay())
 } 
 // console.log(DB.users);
@@ -60,10 +61,12 @@ const newUser = {
 }
 setNewUser(newUser, function(newData) {
     console.log('Новый пользователь добавлен',newData);
-    updateUser(newData.id,{name: 'Alexander', function(updData) {
+    updateUser(newData.id,{name: 'Alexander'}, function(updData) {
         console.log('Пользователь изменен', updData);
-        allData.forEach(function(user, i) {
-            console.log(`Пользователь ${i +1}`, user);
-        });
-    }})
-})
+        getAllUsers(allData => {
+            allData.forEach(function(user, i) {
+                console.log(`Пользователь ${i +1}`, user);
+            });
+        })
+    })
+}) 
